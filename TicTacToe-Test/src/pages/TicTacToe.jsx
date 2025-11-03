@@ -31,32 +31,38 @@ export default function TicTacToeAuth() {
     })
     setSocket(s)
 
+    // ✅ Try auto rejoin
+    const saved = JSON.parse(localStorage.getItem('tictactoe'))
+    if (saved?.roomId && saved?.userId) {
+      s.emit('rejoin', saved)
+    }
+
     s.on('connect', () => {
       console.log('Connected to game server:', s.id)
       setStatus('Connected to game server')
     })
 
-    s.on('connect_error', (err) => {
-      console.error('Socket connect_error:', err?.message)
-      if (err?.message?.toLowerCase().includes('unauthorized')) {
-        alert('Session expired. Please sign in again.')
-        localStorage.removeItem('accessToken')
-        navigate('/signin')
-      }
+    s.on('rejoin-success', (data) => {
+      setRoomId(data.roomId)
+      setBoard(data.board)
+      setPlayers(data.players)
+      setCurrentTurn(data.currentTurn)
+      const me = data.players.find((p) => p.socketId === s.id)
+      setMySymbol(me ? me.symbol : null)
+      setStatus('Rejoined successfully 🎮')
     })
 
     s.on('room-created', ({ roomId }) => {
       setStatus(`Room ${roomId} created. Waiting for opponent...`)
+      localStorage.setItem('tictactoe', JSON.stringify({ roomId, userId: s.id }))
     })
 
     s.on('room-status', (data) => {
       setBoard(data.board || Array(9).fill(''))
       setPlayers(data.players || [])
       setCurrentTurn(data.currentTurn || null)
-      setStatus(data.message || 'Room status updated')
+      setStatus('Room status updated')
       setGameOver(false)
-      const me = (data.players || []).find((p) => p.socketId === s.id)
-      setMySymbol(me ? me.symbol : null)
     })
 
     s.on('update-board', (data) => {
@@ -76,18 +82,15 @@ export default function TicTacToeAuth() {
       setCurrentTurn(room.currentTurn || null)
       setGameOver(false)
       setStatus('Room reset. New game started!')
-      const me = (room.players || []).find((p) => p.socketId === s.id)
-      setMySymbol(me ? me.symbol : null)
     })
 
     s.on('player-left', ({ message, players: updatedPlayers }) => {
       setPlayers(updatedPlayers || [])
-      setStatus(message || 'Player left')
-      setGameOver(true)
+      setStatus(message || 'Player left temporarily')
     })
 
     s.on('error', (err) => {
-      console.error('Server error event:', err)
+      console.error('Server error:', err)
       setStatus(err?.message || String(err))
     })
 
@@ -102,11 +105,11 @@ export default function TicTacToeAuth() {
   const joinRoom = () => {
     if (!roomId.trim()) return alert('Enter room id')
     socket.emit('join-room', roomId)
+    localStorage.setItem('tictactoe', JSON.stringify({ roomId, userId: socket.id }))
   }
 
   const makeMove = (idx) => {
-    if (gameOver) return
-    if (!socket) return
+    if (gameOver || !socket) return
     if (board[idx] !== '') return
     if (currentTurn !== socket.id) {
       alert('Not your turn!')
@@ -123,6 +126,7 @@ export default function TicTacToeAuth() {
   const logout = () => {
     localStorage.removeItem('accessToken')
     localStorage.removeItem('token')
+    localStorage.removeItem('tictactoe')
     if (socket) socket.disconnect()
     navigate('/signin')
   }
@@ -162,33 +166,32 @@ export default function TicTacToeAuth() {
       </div>
 
       <div style={{ marginTop: 12 }}>
-  <strong>Players:</strong>
-  <ul>
-    {players.length > 0 ? (
-      players.map((p) => (
-        <li key={p.socketId}>
-          {p.userId || 'Waiting for opponent...'} — {p.symbol || '—'}{' '}
-          {p.socketId === (socket && socket.id) ? '(you)' : ''}
-        </li>
-      ))
-    ) : (
-      <li>Waiting for players...</li>
-    )}
-  </ul>
+        <strong>Players:</strong>
+        <ul>
+          {players.length > 0 ? (
+            players.map((p) => (
+              <li key={p.userId}>
+                {p.userId} — {p.symbol || '—'}{' '}
+                {p.socketId === (socket && socket.id) ? '(you)' : ''}
+              </li>
+            ))
+          ) : (
+            <li>Waiting for players...</li>
+          )}
+        </ul>
 
-  <div style={{ marginTop: 8 }}>
-    <strong>
-      {gameOver
-        ? status
-        : currentTurn
-        ? currentTurn === socket?.id
-          ? 'Your turn'
-          : 'Opponent’s turn'
-        : 'Waiting for turn info...'}
-    </strong>
-  </div>
-</div>
-
+        <div style={{ marginTop: 8 }}>
+          <strong>
+            {gameOver
+              ? status
+              : currentTurn
+              ? currentTurn === socket?.id
+                ? 'Your turn'
+                : 'Opponent’s turn'
+              : 'Waiting for turn info...'}
+          </strong>
+        </div>
+      </div>
     </div>
   )
 }
