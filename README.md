@@ -65,14 +65,11 @@ Screenshots
 
 
 - Login screen  
-  ![Login](./images/01-login.png)
-
-- Create room / Room code  
-  ![Create Room](./images/02-create-room.png)
+  ![Login](./images/sign-in.png)
 
 - In-game (board view)  
-  ![In Game](./images/03-in-game.png)
+  ![In Game](./images/in-game.png)
 
 - Game over / Result  
-  ![Game Over](./images/04-game-over.png)
+  ![Game Over](./images/game-over.png)
 
