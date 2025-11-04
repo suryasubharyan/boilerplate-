@@ -1,47 +1,78 @@
-# 🎮 Real-Time Tic Tac Toe (React + Node.js + Socket.IO)
 
-A **real-time multiplayer Tic Tac Toe** game built with **React.js**, **Node.js**, and **Socket.IO**.  
-This app supports **authenticated gameplay**, **room-based matchmaking**, and **instant live board updates** — all without page refresh.
+# Tic Tac Toe — Real‑Time Multiplayer
 
----
+A minimal README with simple step-by-step install/run instructions and screenshot placeholders for a real‑time, JWT‑authenticated Tic Tac Toe app built with React (frontend) and Node.js + Express + Socket.IO (backend).
 
-## 🚀 Features
+Prerequisites
+- Node.js v16+ and npm
+- Git
 
-✅ **Real-Time Gameplay:**  
-Both players see board updates instantly using Socket.IO WebSocket connections.
+Repository layout (example)
+- backend/        # Node.js + Express + Socket.IO (TypeScript)
+- TicTacToe-test/ # React frontend
+- README.md
+- images/         # screenshots (place images here)
 
-✅ **JWT Authentication:**  
-Only verified users can join or create game rooms.
+Quick Install & Run (step‑by‑step)
 
-✅ **Room Management:**  
-Create, join, reset, and leave rooms dynamically.
+1. Clone the repository
+   - git clone https://github.com/suryasubharyan/boilerplate-.git
+   - cd boilerplate-
 
-✅ **Turn-Based Logic:**  
-Each player takes turns — game enforces turn validation and prevents cheating.
+2. Backend
+   - cd backend-boilerplate (1) copy
+   - npm install
+   - Create .env file in backend/ with:
+     - given sample in .env example
+   - Start the backend (development):
+     - npm run dev
+   - Confirm backend is running:
+     - Open http://localhost:5000 in your browser (or check terminal logs)
 
-✅ **Automatic Game Reset:**  
-Once a match ends, you can reset the same room for a new round.
+3. Frontend
+   - Open a new terminal
+   - cd ../TicTacToe-test
+   - npm install
+   - Start the frontend:
+     - npm start
+   - Frontend will open at http://localhost:3000
 
-✅ **Live Connection Status:**  
-Shows when a player joins, leaves, or disconnects.
+4. Test the app (local)
+   - Open two browser windows (or one normal + one incognito).
+   - Sign in / obtain JWT for two different users (for development you can mock tokens in localStorage).
+   - Player A → Create Room (server returns a room code).
+   - Player B → Join Room using the code.
+   - Play: moves sync in real time.
+   - Try refreshing one tab — the player should rejoin to the same game if using the same JWT.
 
-✅ **Instant Reconnection Handling:**  
-Socket.IO auto reconnects on reload.
+Basic Commands Summary
+- Backend:
+  - npm install
+  - npm run dev
+- Frontend:
+  - npm install
+  - npm start
 
----
+Environment Variables (minimum)
+- PORT=5000
+- JWT_SECRET=your_secret_key
 
-## 🧩 Tech Stack
+Screenshots
 
-| Layer | Technology |
-|--------|-------------|
-| **Frontend** | React.js (Vite) |
-| **Backend** | Node.js + Express |
-| **Real-Time Engine** | Socket.IO |
-| **Auth** | JWT-based authentication |
-| **Database (optional)** | MongoDB |
-| **Styling** | Inline CSS |
-
----
+- images/01-login.png
+- images/02-in-game.png
+- images/03-game-over.png
 
 
+- Login screen  
+  ![Login](./images/01-login.png)
+
+- Create room / Room code  
+  ![Create Room](./images/02-create-room.png)
+
+- In-game (board view)  
+  ![In Game](./images/03-in-game.png)
+
+- Game over / Result  
+  ![Game Over](./images/04-game-over.png)
 
